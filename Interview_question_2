@@ -1,0 +1,131 @@
+**Que: Lets suppose I am trying to terminate a namespace but it's unable to do it.
+What would be reason for it and how you handle the things?**
+
+Ans:
+
+1. Even though I have deleted all resources still that namespace is not gets deleted and its in terminating state.
+How to deal with it?
+
+---
+
+**Que: Let's suppose i spin up a new pod then it's going to CrashloopBackOff Error, what could be the reasons?**
+
+Ans: A `CrashLoopBackOff` error means your pod starts but **crashes repeatedly**, and Kubernetes keeps restarting it (with increasing delays). Here are the most common causes and how to debug them:
+
+**Possible Reasons:**
+
+- **Application Error**: Bug in your code (e.g., unhandled exception).
+- **Missing Configs**: Required environment variables, config files, or secrets not mounted.
+- **Incorrect Command/Args**: Wrong entrypoint or arguments in the pod spec.
+    
+    **Resource Constraints (OOMKilled / CPU Throttling)**
+    
+    Possible Reasons:
+    
+    - Insufficient Memory (OOMKilled):
+    
+    ## **Liveness Probe Failures**
+    
+    ### **Possible Reasons:**
+    
+    - **Liveness Probe Too Strict**:
+        - HTTP/TCP check fails (e.g., app takes too long to start).
+        - Command probe (`exec`) exits with non-zero status.
+
+---
+
+**Que: How we can isolate that particular pod from others?**
+
+Ans:To isolate a particular pod from other pods in your Kubernetes cluster, you have several options depending on your specific requirements:
+
+```bash
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: isolate-pod
+spec:
+  podSelector:
+    matchLabels:
+      app: my-sensitive-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress: []
+  egress: []
+```
+
+This policy blocks all incoming and outgoing traffic to pods with the label `app: my-sensitive-app`.
+
+---
+
+**Que: Lets suppose I want to configure if an application is failed then only pod gets restarted?
+what are the steps to configure that one and there are multiple steps, but you can tell me atleast 1 or 2 ?**
+
+Ans:
+
+```bash
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  containers:
+  - name: my-app
+    image: my-app-image
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      failureThreshold: 3
+```
+
+- Kubernetes will check the `/health` endpoint every 10 seconds
+- After 3 consecutive failures, it will restart the pod
+- The pod won't restart for infrastructure issues, only when your app fails to respond properly
+
+1. I want to move container logs to a S3 bucket with out using any thrid party tools from a K8s environment.
+How can I do this?
+2. Let's suppose I have configured a container with a Request CPU is 1 and Limit CPU is 2.
+If pod is consuming the 2 CPU then what will be issue like what will be the state of that pod?
+How can we troubleshoot it and what are the steps we need to follow on that?
+3. Lets suppose same scenario with the Memory Request is 1Gi and Limit is 2Gi,
+then what will happen and what is the state?
+4. Let suppose I have 10 pods in a node and one pod is assume more resources,
+If you know the term file descriptor, it is utilizing more file descriptors than others and it effecting to other 9 pods ok?
+So how will you handle that situation?
+
+1. Lets suppose I have multiple nodes and but on one node has always having disk space issue it is not the logs.
+It is related to k8s and docker then you will tackle the situation? What will be your toubleshooting steps?
+2. Let suppose for one application I am receiving the 502 error? What could be error and what are the possibilities?
+3. Did you take a part in upgrade avtivity on K8s like if your organization wanted to upgrade the k8s,
+Did you take part in such kind of activity?
+4. What are the Terraform Life Cycles?
+5. How I can identify the changes from the previous one in terraform?
+6. Lets suppose in terraform I need to use sensitive data like password or any token, API key?
+What is the option in terraform?
+7. I have two resources one ec2 and s3 bucket and I have a condition that ec2 should be created when s3 is
+successfully created. How you will handle this?
+8. I want to create a reusable terraform module, I can use it in multiple times and multiple environments.
+How you can you use make this structure of this reusable module?
+9. We are many members in team and everyone running terraform.
+How will you make sure that my statefile is do not have any conflicts and it should be up to date.
+How will you manage this?
+10. I want to deploy an ec2 instance and it should be scalable, lets suppose I having mutiple requests
+then it should auto scale like scale and scale down based the traffic, like how we can acheive that one?
+11. Lets suppose I am storing data in S3 and wanted to replicated it ina different region,
+So how can you use to do that?
+22.What is RDS backup strategy, How you will do that?
+12. Lets suppose I have two VPCs in two different regions and I wanted to enable communication in between those two.
+How I can achieve that one?
+13. Lets suppose I have one Image it has size of 1GB, like your manager asked you to reduce that size.
+Then how you will do that?
+14. By deafult if you run the docker run command it might be logged as a root user right?
+My requirement is to restrict that user as normal user, how can you do this?
+15. Do you know what port docker daemon is running?
+16. I wanted to run a job in every 30sec, how would you do that one?
+17. On AWS howmany years of experience you have, and K8s and Terraform?
+18. I already deployed the application and i have modified the code and trying to redeploy that application?
+But my changes are not reflecting, what could be the reasons for that?
+19. How would you rate yourself out of 10 in K8s, AWS, Terraform and Docker?
